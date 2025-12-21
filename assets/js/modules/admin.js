@@ -860,6 +860,11 @@ class AdminManager {
         if (auth2FA) {
             auth2FA.checked = settings.twoFactorAuth || false;
         }
+        
+        const maintenanceMode = document.getElementById('maintenanceMode');
+        if (maintenanceMode) {
+            maintenanceMode.value = settings.maintenanceMode || 'off';
+        }
     }
     
     loadSettings() {
@@ -871,7 +876,7 @@ class AdminManager {
             'maxWidth': settings.maxWidth || 1400,
             'borderRadius': settings.borderRadius || 16,
             'systemName': settings.systemName || CONFIG.SITE_NAME,
-            'autoBackup': settings.autoBackup || true
+            'autoBackup': settings.autoBackup !== undefined ? settings.autoBackup : true
         };
         
         Object.keys(elements).forEach(id => {
