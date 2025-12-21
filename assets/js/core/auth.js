@@ -122,7 +122,13 @@ const auth = {
     logout: function() {
         localStorage.removeItem('authenticated');
         localStorage.removeItem('currentUser');
-        window.location.href = '../../public/index.html';
+        
+        // Verificar onde estamos para redirecionar corretamente
+        if (window.location.pathname.includes('/admin/')) {
+            window.location.href = '../index.html';
+        } else {
+            window.location.href = 'index.html';
+        }
     },
 
     // Registrar novo usuário
@@ -177,7 +183,11 @@ const auth = {
     // Requer autenticação
     requireAuth: function() {
         if (!this.isAuthenticated()) {
-            window.location.href = '../../public/index.html';
+            if (window.location.pathname.includes('/admin/')) {
+                window.location.href = '../index.html';
+            } else {
+                window.location.href = 'index.html';
+            }
             return false;
         }
         return true;
@@ -186,7 +196,11 @@ const auth = {
     // Requer privilégios de admin
     requireAdmin: function() {
         if (!this.isAuthenticated()) {
-            window.location.href = '../../public/index.html';
+            if (window.location.pathname.includes('/admin/')) {
+                window.location.href = '../index.html';
+            } else {
+                window.location.href = 'index.html';
+            }
             return false;
         }
         
@@ -196,7 +210,11 @@ const auth = {
             : ['admin', 'superadmin'];
             
         if (!adminRoles.includes(user.role)) {
-            window.location.href = '../../public/dashboard.html';
+            if (window.location.pathname.includes('/admin/')) {
+                window.location.href = '../dashboard.html';
+            } else {
+                window.location.href = 'dashboard.html';
+            }
             return false;
         }
         

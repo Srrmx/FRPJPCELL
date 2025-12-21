@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - JPCELLFRP PRO</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        .login-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 40px;
+            border: 1px solid var(--border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            color: var(--primary);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        
+        .login-header p {
+            color: #aaa;
+            font-size: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #ccc;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .input-wrapper {
+            position: relative;
+        }
+        
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+        
+        .input-wrapper input {
+            width: 100%;
+            padding: 15px 15px 15px 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        .input-wrapper input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.2);
+        }
+        
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(106, 17, 203, 0.4);
+        }
+        
+        .error-message {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 14px;
+            display: none;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .toggle-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-block;
+            margin-top: 15px;
+            transition: color 0.3s ease;
+        }
+        
+        .toggle-link:hover {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+        
+        .fa-shield-alt {
+            color: var(--primary);
+            font-size: 2.5rem;
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                margin: 20px auto;
+                padding: 10px;
+            }
+            
+            .login-card {
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1><i class="fas fa-shield-alt"></i> JPCELLFRP PRO</h1>
+                <p>Acesso Restrito ao Sistema</p>
+            </div>
+            
+            <!-- Formulário de Login -->
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Usuário</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="username" placeholder="Digite seu usuário" required autofocus>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Senha</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Digite sua senha" required>
+                    </div>
+                </div>
+                
+                <div id="errorMessage" class="error-message"></div>
+                
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-sign-in-alt"></i> Entrar
+                </button>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <a href="#" id="toggleRegister" class="toggle-link">
+                        <i class="fas fa-user-plus"></i> Criar uma conta
+                    </a>
+                </div>
+            </form>
+            
+            <!-- Formulário de Registro -->
+            <form id="registerForm" style="display: none;">
+                <div class="form-group">
+                    <label for="reg_username">Nome de Usuário</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user-plus"></i>
+                        <input type="text" id="reg_username" placeholder="Escolha um nome de usuário" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg_password">Senha</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-key"></i>
+                        <input type="password" id="reg_password" placeholder="Crie uma senha segura" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg_email">Email (opcional)</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-envelope"></i>
+                        <input type="email" id="reg_email" placeholder="seu@email.com">
+                    </div>
+                </div>
+                
+                <div id="registerMessage" class="error-message"></div>
+                
+                <button type="submit" class="login-btn">
+                    <i class="fas fa-user-check"></i> Cadastrar
+                </button>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <a href="#" id="toggleLogin" class="toggle-link">
+                        <i class="fas fa-sign-in-alt"></i> Já tenho conta
+                    </a>
+                </div>
+            </form>
+            
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--border);">
+                <p style="text-align: center; color: #888; font-size: 0.9rem;">
+                    <i class="fas fa-info-circle"></i> Use admin/admin123 para acesso administrativo
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="config/config.js"></script>
+    <script src="assets/js/core/auth.js"></script>
+    <script src="assets/js/core/main.js"></script>
+    
+    <script>
+        // Inicializar página de login
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar se já está autenticado
+            if (auth.isAuthenticated()) {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            
+            // Configurar transições
+            document.getElementById('toggleRegister').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('registerForm').style.display = 'block';
+                document.getElementById('errorMessage').style.display = 'none';
+            });
+            
+            document.getElementById('toggleLogin').addEventListener('click', function(e) {
+                e.preventDefault();
+                document.getElementById('registerForm').style.display = 'none';
+                document.getElementById('loginForm').style.display = 'block';
+                document.getElementById('registerMessage').style.display = 'none';
+            });
+            
+            // Auto-foco no campo apropriado
+            if (document.getElementById('loginForm').style.display !== 'none') {
+                document.getElementById('username').focus();
+            } else {
+                document.getElementById('reg_username').focus();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -16,30 +16,27 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
-    // Verificar página atual
-    const currentPage = window.location.pathname.split('/').pop();
+    // Verificar página atual e contexto
+    const path = window.location.pathname;
+    let pageType = 'unknown';
     
-    // Páginas protegidas
-    const protectedPages = ['dashboard.html', 'admin.html', 'profile.html', 'imei-block.html'];
-    const adminPages = ['admin.html', 'imei-block.html'];
-    
-    // Verificar autenticação para páginas protegidas
-    if (protectedPages.includes(currentPage)) {
-        if (!auth.isAuthenticated()) {
-            window.location.href = '../../public/index.html';
-            return;
-        }
-    }
-    
-    // Verificar admin para páginas administrativas
-    if (adminPages.includes(currentPage)) {
-        if (!auth.requireAdmin()) {
-            return;
+    if (path.includes('/admin/')) {
+        if (path.endsWith('index.html') || path.endsWith('/') || path.endsWith('admin')) pageType = 'admin.html';
+        else if (path.endsWith('imei-block.html')) pageType = 'imei-block.html';
+        
+        // Verificação de segurança para admin
+        if (!auth.requireAdmin()) return;
+        
+    } else {
+        if (path.endsWith('index.html') || path.endsWith('/')) pageType = 'index.html';
+        else if (path.endsWith('dashboard.html')) {
+            pageType = 'dashboard.html';
+            if (!auth.requireAuth()) return;
         }
     }
     
     // Inicializar componentes específicos da página
-    initializePage(currentPage);
+    initializePage(pageType);
 });
 
 function initializePage(page) {
