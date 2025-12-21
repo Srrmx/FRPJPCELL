@@ -388,54 +388,67 @@ class DashboardManager {
     }
     
     sendSupportMessage() {
-        const input = document.getElementById('supportInput');
-        const text = input?.value.trim();
-        
-        if (!text) {
-            showNotification('Digite uma mensagem!', 'warning');
-            return;
-        }
-        
-        const messages = JSON.parse(localStorage.getItem('support_messages')) || [];
-        messages.push({
-            sender: 'user',
-            text: text,
-            timestamp: Date.now()
-        });
-        
-        if (input) input.value = '';
-        
-        // Simular resposta do suporte
-        setTimeout(() => {
-            const responses = [
-                "Recebemos sua mensagem! Nossa equipe responderá em breve.",
-                "Estamos verificando sua solicitação. Por favor, aguarde.",
-                "Sua mensagem foi registrada com sucesso."
-            ];
+        try {
+            const input = document.getElementById('supportInput');
+            const text = input?.value.trim();
             
-            const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+            if (!text) {
+                showNotification('Digite uma mensagem!', 'warning');
+                return;
+            }
+            
+            const messagesData = localStorage.getItem('support_messages') || '[]';
+            const messages = JSON.parse(messagesData);
             
             messages.push({
-                sender: 'support',
-                text: randomResponse,
+                sender: 'user',
+                text: text,
                 timestamp: Date.now()
             });
             
+            if (input) input.value = '';
+            
+            // Simular resposta do suporte
+            setTimeout(() => {
+                try {
+                    const responses = [
+                        "Recebemos sua mensagem! Nossa equipe responderá em breve.",
+                        "Estamos verificando sua solicitação. Por favor, aguarde.",
+                        "Sua mensagem foi registrada com sucesso."
+                    ];
+                    
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    
+                    messages.push({
+                        sender: 'support',
+                        text: randomResponse,
+                        timestamp: Date.now()
+                    });
+                    
+                    localStorage.setItem('support_messages', JSON.stringify(messages));
+                    this.loadSupportMessages();
+                } catch (error) {
+                    console.error('Erro ao processar resposta do suporte:', error);
+                }
+            }, 1000 + Math.random() * 1000);
+            
             localStorage.setItem('support_messages', JSON.stringify(messages));
             this.loadSupportMessages();
-        }, 1000 + Math.random() * 1000);
-        
-        localStorage.setItem('support_messages', JSON.stringify(messages));
-        this.loadSupportMessages();
-        
-        showNotification('Mensagem enviada!', 'success');
+            
+            showNotification('Mensagem enviada!', 'success');
+        } catch (error) {
+            console.error('Erro ao enviar mensagem:', error);
+            showNotification('Erro ao enviar mensagem. Tente novamente.', 'danger');
+        }
     }
     
     loadSupportMessages() {
-        const messages = JSON.parse(localStorage.getItem('support_messages')) || [];
-        const supportMessages = document.getElementById('supportMessages');
-        
-        if (!supportMessages) return;
+        try {
+            const messagesData = localStorage.getItem('support_messages') || '[]';
+            const messages = JSON.parse(messagesData);
+            const supportMessages = document.getElementById('supportMessages');
+            
+            if (!supportMessages) return;
         
         let html = '';
         messages.forEach(msg => {

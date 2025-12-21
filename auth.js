@@ -191,7 +191,11 @@ const auth = {
         }
         
         const user = this.currentUser;
-        if (!CONFIG.ADMIN_ROLES.includes(user.role)) {
+        const adminRoles = (typeof CONFIG !== 'undefined' && CONFIG.ADMIN_ROLES) 
+            ? CONFIG.ADMIN_ROLES 
+            : ['admin', 'superadmin'];
+            
+        if (!adminRoles.includes(user.role)) {
             window.location.href = 'dashboard.html';
             return false;
         }

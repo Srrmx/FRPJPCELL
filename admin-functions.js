@@ -505,8 +505,27 @@ class AdminManager {
         const password = document.getElementById('newUserPassword').value;
         const type = document.getElementById('newUserType').value;
         
+        // Validações básicas
         if (!name || !username || !password) {
             showNotification('Preencha todos os campos obrigatórios!', 'warning');
+            return;
+        }
+        
+        // Validar formato de email se fornecido
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            showNotification('Email inválido!', 'danger');
+            return;
+        }
+        
+        // Validar força da senha
+        if (password.length < 6) {
+            showNotification('Senha deve ter no mínimo 6 caracteres!', 'danger');
+            return;
+        }
+        
+        // Validar username (apenas letras, números e _)
+        if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+            showNotification('Usuário deve conter apenas letras, números e _', 'danger');
             return;
         }
         
