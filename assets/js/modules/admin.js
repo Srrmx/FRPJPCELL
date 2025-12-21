@@ -303,6 +303,12 @@ class AdminManager {
             }
         ];
         
+        const settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+        const enabledSet = new Set(settings.enabledModules || CONFIG.ENABLED_MODULES || []);
+        modules.forEach(m => {
+            m.enabled = enabledSet.has(m.id);
+        });
+        
         const modulesList = document.getElementById('modulesList');
         if (!modulesList) return;
         
@@ -337,10 +343,45 @@ class AdminManager {
             
             modulesList.appendChild(moduleCard);
         });
+
+        // Eventos de módulos
+        modulesList.querySelectorAll('input[type="checkbox"][data-module]').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const modId = e.target.getAttribute('data-module');
+                const checked = e.target.checked;
+                const label = e.target.parentElement.querySelector('span');
+                if (label) label.textContent = checked ? 'Ativo' : 'Inativo';
+                
+                const settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+                const enabled = new Set(settings.enabledModules || []);
+                if (checked) enabled.add(modId); else enabled.delete(modId);
+                settings.enabledModules = Array.from(enabled);
+                localStorage.setItem('admin_settings', JSON.stringify(settings));
+                showNotification(`Módulo ${modId} ${checked ? 'ativado' : 'desativado'}`, 'success');
+                
+                // Notificar sincronização
+                window.syncAdmin?.syncSettings();
+            });
+        });
+        
+        modulesList.querySelectorAll('button[data-module-config]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const modId = e.currentTarget.getAttribute('data-module-config');
+                this.showModuleConfigModal(modId);
+            });
+        });
     }
     
     loadProducts() {
-        const products = JSON.parse(localStorage.getItem('site_products') || '[]');
+        let products = JSON.parse(localStorage.getItem('site_products') || '[]');
+        if (!products || products.length === 0) {
+            products = [
+                { id: 'frp_premium', name: 'Licença FRP Premium', description: 'Acesso vitalício ao FRP Unlocker Pro', price: 299.90, icon: 'fa-unlock-alt' },
+                { id: 'imei_credits_10', name: 'Créditos IMEI (10x)', description: '10 desbloqueios IMEI em servidores premium', price: 199.00, icon: 'fa-key' },
+                { id: 'subscription_30', name: 'Assinatura Pro (30 dias)', description: 'Acesso a todas as ferramentas por 30 dias', price: 79.90, icon: 'fa-star' }
+            ];
+            localStorage.setItem('site_products', JSON.stringify(products));
+        }
         const productsList = document.getElementById('productsList');
         
         if (!productsList) return;
@@ -377,10 +418,122 @@ class AdminManager {
                     <button class="btn btn-sm btn-danger" data-product-delete="${index}">
                         <i class="fas fa-trash"></i> Excluir
                     </button>
+                    <button class="btn btn-sm btn-primary" data-payment-edit>
+                        <i class="fas fa-wallet"></i> Editar Pagamento
+                    </button>
                 </div>
             `;
             
             productsList.appendChild(productCard);
+        });
+
+        // Eventos de produtos
+        productsList.querySelectorAll('[data-product-edit]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(e.currentTarget.getAttribute('data-product-edit'), 10);
+                const p = products[idx];
+                this.showModal('Editar Produto', `
+                    <div class="form-group">
+                        <label>Nome</label>
+                        <input type="text" id="editName" value="${p.name}">
+                    </div>
+                    <div class="form-group">
+                        <label>Preço (R$)</label>
+                        <input type="number" step="0.01" id="editPrice" value="${p.price}">
+                    </div>
+                    <div class="form-group">
+                        <label>Descrição</label>
+                        <textarea id="editDesc" rows="3">${p.description || ''}</textarea>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:15px;">
+                        <button class="btn btn-success" id="btnSaveProduct"><i class="fas fa-save"></i> Salvar</button>
+                        <button class="btn btn-danger" onclick="admin.closeModal()"><i class="fas fa-times"></i> Cancelar</button>
+                    </div>
+                `);
+                setTimeout(() => {
+                    const saveBtn = document.getElementById('btnSaveProduct');
+                    saveBtn?.addEventListener('click', () => {
+                        p.name = (document.getElementById('editName').value || p.name).trim();
+                        p.price = parseFloat(document.getElementById('editPrice').value || p.price) || p.price;
+                        p.description = (document.getElementById('editDesc').value || p.description).trim();
+                        localStorage.setItem('site_products', JSON.stringify(products));
+                        showNotification('Produto atualizado!', 'success');
+                        this.closeModal();
+                        this.loadProducts();
+                        window.syncAdmin?.forceProductSync();
+                    });
+                }, 0);
+            });
+        });
+        
+        productsList.querySelectorAll('[data-product-delete]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(e.currentTarget.getAttribute('data-product-delete'), 10);
+                const p = products[idx];
+                if (confirm(`Excluir produto ${p.name}?`)) {
+                    products.splice(idx, 1);
+                    localStorage.setItem('site_products', JSON.stringify(products));
+                    showNotification('Produto excluído!', 'success');
+                    this.loadProducts();
+                    window.syncAdmin?.forceProductSync();
+                }
+            });
+        });
+        
+        productsList.querySelectorAll('[data-product-stats]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(e.currentTarget.getAttribute('data-product-stats'), 10);
+                const p = products[idx];
+                const salesStats = JSON.parse(localStorage.getItem('today_sales_stats') || '{}');
+                this.showModal('Estatísticas do Produto', `
+                    <p><strong>${p.name}</strong></p>
+                    <p>Vendas hoje: ${salesStats.count || 0}</p>
+                    <p>Total vendido hoje: R$ ${(salesStats.total || 0).toFixed(2)}</p>
+                    <div style="margin-top:15px;">
+                        <button class="btn btn-info" onclick="admin.closeModal()"><i class="fas fa-check"></i> Ok</button>
+                    </div>
+                `);
+            });
+        });
+        
+        productsList.querySelectorAll('[data-payment-edit]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const pay = JSON.parse(localStorage.getItem('payment_settings') || '{}');
+                this.showModal('Configurações de Pagamento', `
+                    <div class="form-group">
+                        <label>Chave PIX</label>
+                        <input type="text" id="pixKey" value="${pay.pixKey || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>API do Banco (URL)</label>
+                        <input type="text" id="bankApiUrl" value="${pay.bankApiUrl || ''}">
+                    </div>
+                    <div class="form-group">
+                        <label>Token de API</label>
+                        <input type="password" id="bankApiToken" value="${pay.bankApiToken || ''}">
+                    </div>
+                    <div style="display:flex;gap:10px;margin-top:15px;">
+                        <button class="btn btn-success" id="btnSavePayment"><i class="fas fa-save"></i> Salvar</button>
+                        <button class="btn btn-danger" onclick="admin.closeModal()"><i class="fas fa-times"></i> Cancelar</button>
+                    </div>
+                `);
+                setTimeout(() => {
+                    document.getElementById('btnSavePayment')?.addEventListener('click', () => {
+                        const newPay = {
+                            pixKey: document.getElementById('pixKey').value.trim(),
+                            bankApiUrl: document.getElementById('bankApiUrl').value.trim(),
+                            bankApiToken: document.getElementById('bankApiToken').value
+                        };
+                        localStorage.setItem('payment_settings', JSON.stringify(newPay));
+                        showNotification('Configurações de pagamento salvas!', 'success');
+                        this.closeModal();
+                        const settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+                        settings.payment = { pixKey: newPay.pixKey, bankApiUrl: newPay.bankApiUrl };
+                        localStorage.setItem('admin_settings', JSON.stringify(settings));
+                        window.syncAdmin?.syncSettings();
+                    });
+                }, 0);
+            });
         });
     }
     
@@ -683,11 +836,17 @@ class AdminManager {
             case 'maintenance on':
                 result = 'Modo de manutenção ativado!';
                 localStorage.setItem('maintenance_mode', 'true');
+                const uiOn = JSON.parse(localStorage.getItem('ui_settings') || '{}');
+                uiOn.maintenanceMode = 'on';
+                localStorage.setItem('ui_settings', JSON.stringify(uiOn));
                 break;
                 
             case 'maintenance off':
                 result = 'Modo de manutenção desativado!';
                 localStorage.removeItem('maintenance_mode');
+                const uiOff = JSON.parse(localStorage.getItem('ui_settings') || '{}');
+                uiOff.maintenanceMode = 'off';
+                localStorage.setItem('ui_settings', JSON.stringify(uiOff));
                 break;
                 
             case 'update':
@@ -714,7 +873,7 @@ class AdminManager {
                 result = `Comando não reconhecido: ${command}\nDigite "help" para ver os comandos disponíveis.`;
         }
         
-        output.innerHTML = `<span style="color: #94a3b8;">$ ${command}</span>\n${result}`;
+        output.innerHTML = `<span style="color: #94a3b8;">$ ${command}</span><br><pre style="margin:0;">${result}</pre>`;
         output.scrollTop = output.scrollHeight;
         commandInput.value = '';
         
@@ -722,12 +881,74 @@ class AdminManager {
     }
     
     filterUsers() {
-        const type = document.getElementById('filterType').value;
-        const status = document.getElementById('filterStatus').value;
-        const date = document.getElementById('filterDate').value;
-        
+        const query = document.getElementById('userSearch')?.value.trim().toLowerCase() || '';
+        const users = auth.getAllUsers();
+        const filtered = users.filter(u => 
+            (u.username || '').toLowerCase().includes(query) ||
+            (u.fullName || '').toLowerCase().includes(query)
+        );
+        const usersList = document.getElementById('usersList');
+        if (!usersList) return;
+        usersList.innerHTML = '';
+        filtered.forEach((user) => {
+            const userType = user.role === 'admin' || user.role === 'superadmin' ? 'admin' : 
+                             (user.vip || user.isPremium ? 'premium' : 'basic');
+            const typeColors = {
+                admin: 'linear-gradient(45deg, #8b5cf6, #c084fc)',
+                premium: 'linear-gradient(45deg, #FFD700, #FFB347)',
+                basic: 'linear-gradient(45deg, #666, #999)'
+            };
+            const card = document.createElement('div');
+            card.className = 'user-card fade-in';
+            const lastLogin = user.lastLogin ? new Date(user.lastLogin).toLocaleString('pt-BR') : 'Nunca';
+            card.innerHTML = `
+                <div class="user-card-header">
+                    <div class="user-card-avatar" style="background: ${typeColors[userType]}">
+                        ${(user.fullName || user.username).charAt(0).toUpperCase()}
+                    </div>
+                    <div class="user-card-info">
+                        <h3>${user.fullName || user.username}</h3>
+                        <p>@${user.username} • ${this.getRoleName(user.role)}</p>
+                        <p style="font-size: 12px; margin-top: 5px;">
+                            <i class="fas fa-calendar"></i> Cadastro: ${new Date(user.createdAt).toLocaleDateString('pt-BR')}
+                        </p>
+                        <p style="font-size: 12px;">
+                            <i class="fas fa-sign-in-alt"></i> Último login: ${lastLogin}
+                        </p>
+                    </div>
+                </div>
+                <div class="user-card-actions">
+                    <button class="btn btn-sm ${user.active === false ? 'success' : 'warning'}" 
+                            data-action="toggle" data-username="${user.username}">
+                        <i class="fas fa-user-${user.active === false ? 'check' : 'slash'}"></i> 
+                        ${user.active === false ? 'Ativar' : 'Desativar'}
+                    </button>
+                    <button class="btn btn-sm ${user.role.includes('admin') ? 'warning' : 'info'}" 
+                            data-action="role" data-username="${user.username}">
+                        <i class="fas fa-user-shield"></i> 
+                        ${user.role.includes('admin') ? 'Rebaixar' : 'Promover'}
+                    </button>
+                    <button class="btn btn-sm ${user.vip ? 'danger' : 'success'}" 
+                            data-action="vip" data-username="${user.username}">
+                        <i class="fas fa-crown"></i> 
+                        ${user.vip ? 'Remover VIP' : 'Tornar VIP'}
+                    </button>
+                    <button class="btn btn-sm btn-danger" 
+                            data-action="delete" data-username="${user.username}">
+                        <i class="fas fa-trash"></i> Excluir
+                    </button>
+                </div>
+            `;
+            usersList.appendChild(card);
+        });
+        usersList.querySelectorAll('[data-action]').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const action = e.target.closest('button').getAttribute('data-action');
+                const username = e.target.closest('button').getAttribute('data-username');
+                this.handleUserAction(action, username);
+            });
+        });
         showNotification('Filtro aplicado!', 'info');
-        // Implementar filtragem real aqui
     }
     
     saveSettings() {
@@ -737,16 +958,29 @@ class AdminManager {
         const borderRadius = document.getElementById('borderRadius').value;
         const systemName = document.getElementById('systemName').value;
         const autoBackup = document.getElementById('autoBackup').checked;
+        const twoFactorAuth = document.getElementById('auth2FA')?.checked || false;
+        const maintenanceMode = document.getElementById('maintenanceMode')?.value || 'off';
         
         const settings = {
             theme: theme,
             maxWidth: parseInt(maxWidth) || 1400,
             borderRadius: parseInt(borderRadius) || 16,
             systemName: systemName,
-            autoBackup: autoBackup
+            autoBackup: autoBackup,
+            twoFactorAuth: twoFactorAuth,
+            maintenanceMode: maintenanceMode
         };
         
         localStorage.setItem('ui_settings', JSON.stringify(settings));
+        const adminSettings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+        adminSettings.theme = settings.theme;
+        adminSettings.maxWidth = settings.maxWidth;
+        adminSettings.borderRadius = settings.borderRadius;
+        adminSettings.systemName = settings.systemName;
+        adminSettings.autoBackup = settings.autoBackup;
+        adminSettings.twoFactorAuth = settings.twoFactorAuth;
+        adminSettings.maintenanceMode = settings.maintenanceMode;
+        localStorage.setItem('admin_settings', JSON.stringify(adminSettings));
         
         // Aplicar imediatamente
         document.body.classList.remove('dark-theme', 'light-theme', 'auto-theme');
@@ -757,6 +991,48 @@ class AdminManager {
         }
         
         showNotification('Configurações salvas com sucesso!', 'success');
+        window.syncAdmin?.syncSettings();
+    }
+
+    showModuleConfigModal(moduleId) {
+        const moduleConfigs = JSON.parse(localStorage.getItem('module_configs') || '{}');
+        const current = moduleConfigs[moduleId] || {};
+        const fields = moduleId === 'frp' ? `
+            <div class="form-group">
+                <label>FRP API URL</label>
+                <input type="text" id="modApiUrl" value="${current.apiUrl || ''}">
+            </div>
+        ` : moduleId === 'shop' ? `
+            <div class="form-group">
+                <label>Gateway Pagamentos (URL)</label>
+                <input type="text" id="modApiUrl" value="${current.apiUrl || ''}">
+            </div>
+        ` : `
+            <div class="form-group">
+                <label>Endpoint</label>
+                <input type="text" id="modApiUrl" value="${current.apiUrl || ''}">
+            </div>
+        `;
+        this.showModal(`Configurações do módulo: ${moduleId}`, `
+            ${fields}
+            <div style="display:flex;gap:10px;margin-top:15px;">
+                <button class="btn btn-success" id="btnSaveModule"><i class="fas fa-save"></i> Salvar</button>
+                <button class="btn btn-danger" onclick="admin.closeModal()"><i class="fas fa-times"></i> Cancelar</button>
+            </div>
+        `);
+        setTimeout(() => {
+            document.getElementById('btnSaveModule')?.addEventListener('click', () => {
+                const apiUrl = document.getElementById('modApiUrl').value.trim();
+                moduleConfigs[moduleId] = { apiUrl };
+                localStorage.setItem('module_configs', JSON.stringify(moduleConfigs));
+                showNotification('Configurações do módulo salvas!', 'success');
+                this.closeModal();
+                const settings = JSON.parse(localStorage.getItem('admin_settings') || '{}');
+                settings.modules = Object.assign(settings.modules || {}, { [moduleId]: { apiUrl } });
+                localStorage.setItem('admin_settings', JSON.stringify(settings));
+                window.syncAdmin?.syncSettings();
+            });
+        }, 0);
     }
     
     showModal(title, content) {

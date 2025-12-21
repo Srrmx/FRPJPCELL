@@ -381,7 +381,7 @@
                 <div class="card-header" style="margin-bottom: 20px; display: flex; justify-content: space-between;">
                     <h3>Gerenciar Usuários</h3>
                     <div style="display: flex; gap: 10px;">
-                        <input type="text" placeholder="Buscar usuário..." style="padding: 8px; border-radius: 8px; border: 1px solid var(--gray-dark); background: rgba(0,0,0,0.2); color: white;">
+                        <input id="userSearch" type="text" placeholder="Buscar usuário..." style="padding: 8px; border-radius: 8px; border: 1px solid var(--gray-dark); background: rgba(0,0,0,0.2); color: white;">
                         <button id="btnApplyFilter" class="btn btn-primary"><i class="fas fa-search"></i></button>
                     </div>
                 </div>
@@ -516,15 +516,5 @@
     <script src="../assets/js/core/auth.js"></script>
     <script src="../assets/js/modules/admin.js"></script>
     <script src="../assets/js/utils/sync-admin.js"></script>
-    <script>
-        // Inicializar Admin
-        document.addEventListener('DOMContentLoaded', () => {
-            if (typeof AdminManager !== 'undefined') {
-                window.admin = new AdminManager();
-            } else {
-                console.error('AdminManager não carregado');
-            }
-        });
-    </script>
 </body>
 </html>
