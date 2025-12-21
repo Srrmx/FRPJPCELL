@@ -16,6 +16,28 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
     }
 
+    // Base Path para GitHub Pages
+    const repoMatch = window.location.pathname.match(/^\/([^\/]+)\//);
+    const basePath = repoMatch ? `/${repoMatch[1]}` : '';
+    window.App = window.App || {};
+    window.App.basePath = basePath;
+    window.App.resolveUrl = function(path) {
+        if (!path) return basePath || '/';
+        const prefixed = path.startsWith('/') ? path : `/${path}`;
+        return `${basePath}${prefixed}`;
+    };
+    window.App.goto = function(path) {
+        window.location.href = window.App.resolveUrl(path);
+    };
+    window.App.on = function(name, handler) {
+        window.addEventListener(name, (e) => handler(e.detail));
+    };
+    window.App.emit = function(name, detail) {
+        const ev = new CustomEvent(name, { detail });
+        window.dispatchEvent(ev);
+    };
+    normalizeLinks(basePath);
+
     // Verificar página atual e contexto
     const path = window.location.pathname;
     let pageType = 'unknown';
@@ -38,6 +60,17 @@ document.addEventListener('DOMContentLoaded', function() {
     // Inicializar componentes específicos da página
     initializePage(pageType);
 });
+
+function normalizeLinks(basePath) {
+    const anchors = Array.from(document.querySelectorAll('a[href]'));
+    anchors.forEach(a => {
+        const href = a.getAttribute('href');
+        if (!href || href.startsWith('http')) return;
+        if (href.startsWith('#')) return;
+        const resolved = window.App.resolveUrl(href.replace(/^\.\//, ''));
+        a.setAttribute('href', resolved);
+    });
+}
 
 function initializePage(page) {
     console.log(`Inicializando página: ${page}`);
@@ -203,7 +236,7 @@ function setupLoginPage() {
             
             const result = auth.login(username, password);
             if (result.success) {
-                window.location.href = 'dashboard.html';
+                window.App.goto('dashboard.html');
             } else {
                 const errorEl = document.getElementById('errorMessage');
                 if (errorEl) {
@@ -248,7 +281,7 @@ function setupLoginPage() {
             
             const result = auth.register(userData);
             if (result.success) {
-                window.location.href = 'dashboard.html';
+                window.App.goto('dashboard.html');
             } else {
                 const errorEl = document.getElementById('registerMessage');
                 if (errorEl) {
