@@ -478,6 +478,9 @@ class DashboardManager {
         
         supportMessages.innerHTML = html;
         supportMessages.scrollTop = supportMessages.scrollHeight;
+        } catch (error) {
+            console.error('Erro ao carregar mensagens:', error);
+        }
     }
     
     onSectionChange(sectionId) {
