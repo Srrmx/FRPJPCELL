@@ -513,11 +513,11 @@ class DashboardManager {
         if (!servicesList) return;
 
         const services = [
-            { name: 'Samsung FRP (Server 1)', status: 'Online', time: '1-5 min', price: 55.00 },
-            { name: 'Samsung FRP (Server 2)', status: 'Online', time: '5-10 min', price: 45.00 },
-            { name: 'Xiaomi Auth Flash', status: 'Online', time: 'Instant', price: 80.00 },
-            { name: 'Motorola FRP', status: 'Manutenção', time: '--', price: 0.00 },
-            { name: 'LG Unlock', status: 'Online', time: '10-30 min', price: 35.00 }
+            { id: 'samsung_frp_1', name: 'Samsung FRP (Server 1)', status: 'Online', time: '1-5 min', price: 55.00 },
+            { id: 'samsung_frp_2', name: 'Samsung FRP (Server 2)', status: 'Online', time: '5-10 min', price: 45.00 },
+            { id: 'xiaomi_auth', name: 'Xiaomi Auth Flash', status: 'Online', time: 'Instant', price: 80.00 },
+            { id: 'motorola_frp', name: 'Motorola FRP', status: 'Manutenção', time: '--', price: 0.00 },
+            { id: 'lg_unlock', name: 'LG Unlock', status: 'Online', time: '10-30 min', price: 35.00 }
         ];
 
         servicesList.innerHTML = services.map(service => `
@@ -530,11 +530,45 @@ class DashboardManager {
                 <div class="status-trend">
                     <i class="fas fa-clock"></i> Tempo: ${service.time}
                 </div>
-                <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 15px;" ${service.status !== 'Online' ? 'disabled' : ''}>
+                <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 15px;" data-service-id="${service.id}" ${service.status !== 'Online' ? 'disabled' : ''}>
                     Solicitar
                 </button>
             </div>
         `).join('');
+        
+        servicesList.querySelectorAll('button[data-service-id]').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const id = e.currentTarget.getAttribute('data-service-id');
+                try {
+                    const drivers = await frpServices.getDrivers();
+                    if (!drivers || drivers.installed === false) {
+                        showNotification('Drivers FRP ausentes', 'warning');
+                        return;
+                    }
+                    const result = await frpServices.requestService(id, { user: auth.currentUser.username });
+                    if (result && result.success) {
+                        showNotification('Solicitação enviada com sucesso!', 'success');
+                    } else {
+                        showNotification('Falha ao enviar solicitação', 'danger');
+                    }
+                } catch {
+                    showNotification('Erro ao processar solicitação', 'danger');
+                }
+            });
+        });
+    }
+    
+    async requestFrpService(serviceId) {
+        try {
+            const result = await frpServices.requestService(serviceId, { user: auth.currentUser.username });
+            if (result && result.success) {
+                showNotification('Solicitação enviada com sucesso!', 'success');
+            } else {
+                showNotification('Falha ao enviar solicitação', 'danger');
+            }
+        } catch {
+            showNotification('Erro ao processar solicitação', 'danger');
+        }
     }
 
     loadServers() {
