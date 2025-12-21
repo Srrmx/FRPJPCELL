@@ -484,6 +484,15 @@ class DashboardManager {
         console.log(`Mudou para seção: ${sectionId}`);
         
         switch(sectionId) {
+            case 'servicos':
+                this.loadServices();
+                break;
+            case 'servidores':
+                this.loadServers();
+                break;
+            case 'atualizacoes':
+                this.loadUpdates();
+                break;
             case 'suporte':
                 this.loadSupportMessages();
                 break;
@@ -494,6 +503,106 @@ class DashboardManager {
                 this.loadProfileData();
                 break;
         }
+    }
+
+    loadServices() {
+        const servicesList = document.getElementById('servicesList');
+        if (!servicesList) return;
+
+        const services = [
+            { name: 'Samsung FRP (Server 1)', status: 'Online', time: '1-5 min', price: 55.00 },
+            { name: 'Samsung FRP (Server 2)', status: 'Online', time: '5-10 min', price: 45.00 },
+            { name: 'Xiaomi Auth Flash', status: 'Online', time: 'Instant', price: 80.00 },
+            { name: 'Motorola FRP', status: 'Manutenção', time: '--', price: 0.00 },
+            { name: 'LG Unlock', status: 'Online', time: '10-30 min', price: 35.00 }
+        ];
+
+        servicesList.innerHTML = services.map(service => `
+            <div class="status-card" style="border-left: 4px solid ${service.status === 'Online' ? '#10b981' : '#ef4444'}">
+                <div class="status-header">
+                    <h3>${service.name}</h3>
+                    <span class="status-badge ${service.status === 'Online' ? 'online' : 'danger'}">${service.status}</span>
+                </div>
+                <div class="status-value" style="font-size: 24px;">R$ ${service.price.toFixed(2)}</div>
+                <div class="status-trend">
+                    <i class="fas fa-clock"></i> Tempo: ${service.time}
+                </div>
+                <button class="btn btn-primary btn-sm" style="width: 100%; margin-top: 15px;" ${service.status !== 'Online' ? 'disabled' : ''}>
+                    Solicitar
+                </button>
+            </div>
+        `).join('');
+    }
+
+    loadServers() {
+        const serversList = document.getElementById('serversList');
+        if (!serversList) return;
+
+        const servers = [
+            { name: 'Samsung API 01', status: 'Online', load: '45%', region: 'BR' },
+            { name: 'Samsung API 02', status: 'Online', load: '62%', region: 'USA' },
+            { name: 'Xiaomi Auth Node', status: 'Online', load: '28%', region: 'CN' },
+            { name: 'Motorola Gateway', status: 'Offline', load: '0%', region: 'BR' },
+            { name: 'Database Master', status: 'Online', load: '15%', region: 'USA' }
+        ];
+
+        serversList.innerHTML = `
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Servidor</th>
+                        <th>Status</th>
+                        <th>Carga</th>
+                        <th>Região</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${servers.map(server => `
+                        <tr>
+                            <td><i class="fas fa-server"></i> ${server.name}</td>
+                            <td><span class="status-badge ${server.status === 'Online' ? 'online' : 'danger'}">${server.status}</span></td>
+                            <td>
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div style="flex: 1; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; width: 100px;">
+                                        <div style="width: ${server.load}; height: 100%; background: ${server.status === 'Online' ? '#10b981' : '#ef4444'}; border-radius: 3px;"></div>
+                                    </div>
+                                    ${server.load}
+                                </div>
+                            </td>
+                            <td>${server.region}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    loadUpdates() {
+        const updatesList = document.getElementById('updatesList');
+        if (!updatesList) return;
+
+        const updates = [
+            { version: 'v2.5.1', date: '21/12/2024', desc: 'Correção de bugs na API Samsung', size: '15MB' },
+            { version: 'v2.5.0', date: '20/12/2024', desc: 'Novo painel de controle e melhorias de performance', size: '45MB' },
+            { version: 'v2.4.9', date: '15/12/2024', desc: 'Suporte a novos modelos Xiaomi', size: '12MB' }
+        ];
+
+        updatesList.innerHTML = updates.map(update => `
+            <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-weight: bold; font-size: 18px; color: #4f46e5; margin-bottom: 5px;">
+                        <i class="fas fa-cube"></i> JPCELL Tool ${update.version}
+                    </div>
+                    <p style="color: #cbd5e1; margin-bottom: 5px;">${update.desc}</p>
+                    <div style="font-size: 12px; color: #94a3b8;">
+                        Data: ${update.date} • Tamanho: ${update.size}
+                    </div>
+                </div>
+                <button class="btn btn-success">
+                    <i class="fas fa-download"></i> Baixar
+                </button>
+            </div>
+        `).join('');
     }
     
     loadProfileData() {

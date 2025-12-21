@@ -794,26 +794,113 @@
                 </div>
             </div>
 
-            <!-- Outras seções serão carregadas dinamicamente -->
             <div id="servicos" class="content-section">
                 <div class="card">
                     <div class="card-header">
-                        <h2>FRP Services</h2>
+                        <h2><i class="fas fa-unlock-alt"></i> FRP Services</h2>
                     </div>
-                    <p>Lista de serviços será carregada aqui...</p>
+                    <div id="servicesList" class="status-grid">
+                        <!-- Filled by JS -->
+                    </div>
                 </div>
             </div>
             
             <div id="loja" class="content-section">
                 <div class="card">
                     <div class="card-header">
-                        <h2>Loja</h2>
+                        <h2><i class="fas fa-shopping-cart"></i> Loja de Licenças</h2>
                     </div>
-                    <p>Loja será carregada aqui...</p>
+                    <div id="shopProducts" class="grid-3" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <!-- Filled by JS -->
+                    </div>
                 </div>
             </div>
-            
-            <!-- Adicione outros containers de seção conforme necessário -->
+
+            <div id="servidores" class="content-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-server"></i> Status dos Servidores</h2>
+                        <button class="btn btn-primary btn-sm" onclick="dashboard.updateSystemStats()">Atualizar</button>
+                    </div>
+                    <div id="serversList" class="data-table-container">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="suporte" class="content-section">
+                <div class="grid-2" style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
+                    <div class="card" style="height: 600px; display: flex; flex-direction: column;">
+                        <div class="card-header">
+                            <h2><i class="fas fa-headset"></i> Chat Suporte</h2>
+                        </div>
+                        <div id="supportMessages" style="flex: 1; overflow-y: auto; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; margin-bottom: 15px;">
+                            <!-- Messages -->
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="supportInput" placeholder="Digite sua mensagem..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white;">
+                            <button id="supportSend" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>FAQ Rápido</h2>
+                        </div>
+                        <div class="faq-list">
+                            <details style="margin-bottom: 10px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                                <summary style="cursor: pointer; font-weight: 600;">Como recarregar créditos?</summary>
+                                <p style="margin-top: 10px; font-size: 14px; color: #cbd5e1;">Vá até a aba Loja e selecione o pacote de créditos desejado. Aceitamos PIX e Cartão.</p>
+                            </details>
+                            <details style="margin-bottom: 10px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px;">
+                                <summary style="cursor: pointer; font-weight: 600;">O servidor está online?</summary>
+                                <p style="margin-top: 10px; font-size: 14px; color: #cbd5e1;">Verifique o status na aba Servidores ou no Dashboard principal.</p>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="atualizacoes" class="content-section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><i class="fas fa-download"></i> Downloads e Atualizações</h2>
+                    </div>
+                    <div id="updatesList">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="perfil" class="content-section">
+                <div class="card" style="max-width: 800px; margin: 0 auto;">
+                    <div class="card-header">
+                        <h2><i class="fas fa-user-cog"></i> Meu Perfil</h2>
+                    </div>
+                    <div class="form-grid" style="display: grid; gap: 20px;">
+                        <div class="form-group">
+                            <label>Nome Completo</label>
+                            <input type="text" id="profileFullName" readonly class="form-control" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="profileEmail" readonly class="form-control" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Telefone</label>
+                            <input type="text" id="profilePhone" readonly class="form-control" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px;">
+                        </div>
+                        <div class="form-group">
+                            <label>Ações do Sistema</label>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <button class="btn btn-warning" onclick="alert('Funcionalidade de troca de senha em manutenção')">Alterar Senha</button>
+                                <button class="btn btn-info" onclick="siteTester.run()">
+                                    <i class="fas fa-bug"></i> Executar Auto-Teste
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
     </div>
@@ -821,6 +908,7 @@
     <script src="config/config.js"></script>
     <script src="assets/js/core/auth.js"></script>
     <script src="assets/js/modules/dashboard.js"></script>
+    <script src="assets/js/modules/site-tester.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Verificar permissão de admin
