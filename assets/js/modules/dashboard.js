@@ -65,13 +65,13 @@ class DashboardManager {
         // Adicionar link admin se for admin
         if (auth.isAdmin()) {
             const sidebarNav = document.querySelector('.sidebar-nav');
-            if (sidebarNav && !document.querySelector('.nav-item[href="admin.html"]')) {
+            if (sidebarNav && !document.querySelector('.nav-item[href="admin/index.html"]')) {
                 const adminLink = document.createElement('a');
-                adminLink.href = 'admin.html';
+                adminLink.href = 'admin/index.html';
                 adminLink.className = 'nav-item';
                 adminLink.innerHTML = `
                     <i class="fas fa-user-shield"></i>
-                    <span>Admin</span>
+                    <span>Admin Panel</span>
                 `;
                 sidebarNav.appendChild(adminLink);
             }

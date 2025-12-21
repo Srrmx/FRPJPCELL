@@ -837,19 +837,16 @@ class AdminManager {
         console.log(`Seção admin alterada para: ${sectionId}`);
         
         switch(sectionId) {
-            case 'usuarios':
+            case 'users':
                 this.loadUsers();
                 break;
-            case 'modulos':
+            case 'modules':
                 this.loadModules();
                 break;
-            case 'loja':
+            case 'products':
                 this.loadProducts();
                 break;
-            case 'seguranca':
-                this.loadSecurityData();
-                break;
-            case 'configuracoes':
+            case 'settings':
                 this.loadSettings();
                 break;
         }
@@ -866,6 +863,7 @@ class AdminManager {
     }
     
     loadSettings() {
+        this.loadSecurityData();
         const settings = JSON.parse(localStorage.getItem('ui_settings') || '{}');
         
         const elements = {
