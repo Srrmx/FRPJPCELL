@@ -42,33 +42,57 @@ const auth = {
 
     // Verificar se o usuário está autenticado
     isAuthenticated: function() {
-        const auth = localStorage.getItem('authenticated') === 'true';
-        const currentUser = localStorage.getItem('currentUser');
-        const users = JSON.parse(localStorage.getItem('users_db') || '[]');
-        const user = users.find(u => u.username === currentUser);
-        
-        return auth && user && user.active !== false;
+        try {
+            const auth = localStorage.getItem('authenticated') === 'true';
+            const currentUser = localStorage.getItem('currentUser');
+            const usersData = localStorage.getItem('users_db') || '[]';
+            const users = JSON.parse(usersData);
+            const user = users.find(u => u.username === currentUser);
+            
+            return auth && user && user.active !== false;
+        } catch (error) {
+            console.error('Erro ao verificar autenticação:', error);
+            return false;
+        }
     },
 
     // Obter usuário atual
     get currentUser() {
-        const username = localStorage.getItem('currentUser') || '';
-        const users = JSON.parse(localStorage.getItem('users_db') || '[]');
-        const user = users.find(u => u.username === username) || {};
-        
-        return {
-            id: user.id || '',
-            username: username,
-            fullName: user.fullName || username,
-            email: user.email || '',
-            phone: user.phone || '',
-            role: user.role || 'user',
-            vip: user.vip || false,
-            isPremium: user.isPremium || false,
-            active: user.active !== false,
-            createdAt: user.createdAt || Date.now(),
-            permissions: user.permissions || ['basic']
-        };
+        try {
+            const username = localStorage.getItem('currentUser') || '';
+            const usersData = localStorage.getItem('users_db') || '[]';
+            const users = JSON.parse(usersData);
+            const user = users.find(u => u.username === username) || {};
+            
+            return {
+                id: user.id || '',
+                username: username,
+                fullName: user.fullName || username,
+                email: user.email || '',
+                phone: user.phone || '',
+                role: user.role || 'user',
+                vip: user.vip || false,
+                isPremium: user.isPremium || false,
+                active: user.active !== false,
+                createdAt: user.createdAt || Date.now(),
+                permissions: user.permissions || ['basic']
+            };
+        } catch (error) {
+            console.error('Erro ao obter usuário atual:', error);
+            return {
+                id: '',
+                username: '',
+                fullName: 'Usuário',
+                email: '',
+                phone: '',
+                role: 'user',
+                vip: false,
+                isPremium: false,
+                active: false,
+                createdAt: Date.now(),
+                permissions: ['basic']
+            };
+        }
     },
 
     // Fazer login
