@@ -1612,14 +1612,6 @@
                 alert('Erro ao carregar o dashboard. Por favor, recarregue a página.');
             }
         });
-
-        // Prevenir F12 e botão direito
-        document.addEventListener('contextmenu', (e) => e.preventDefault());
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) {
-                e.preventDefault();
-            }
-        });
     </script>
     <script src="config.js"></script>
     <script src="auth.js"></script>
