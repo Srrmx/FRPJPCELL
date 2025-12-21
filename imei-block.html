@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMEI Block - JPCELLFRP PRO</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .imei-form-group {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+        
+        .imei-input {
+            padding: 12px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--light);
+            font-size: 14px;
+        }
+        
+        .imei-input:focus {
+            outline: none;
+            border-color: var(--info);
+        }
+        
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .modules-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .module-item {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+        
+        .module-item:hover {
+            transform: translateY(-2px);
+            border-color: var(--info);
+        }
+        
+        .module-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .module-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background: rgba(59, 130, 246, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: var(--info);
+        }
+        
+        .module-details h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .module-details p {
+            font-size: 14px;
+            color: #94a3b8;
+            margin: 5px 0;
+        }
+        
+        .module-status {
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .module-status.up-to-date {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .module-status.update-available {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+        
+        .connection-log {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .log-entry {
+            padding: 8px 12px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.05);
+            border-left: 3px solid var(--info);
+        }
+        
+        .log-entry.success {
+            border-left-color: var(--success);
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .log-entry.warning {
+            border-left-color: var(--warning);
+            background: rgba(245, 158, 11, 0.1);
+        }
+        
+        .log-entry.error {
+            border-left-color: var(--danger);
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .log-placeholder {
+            text-align: center;
+            color: #64748b;
+            font-style: italic;
+            padding: 20px;
+        }
+        
+        .action-btn.green {
+            background: linear-gradient(45deg, #10b981, #38ef7d);
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-top">
+                <h1><i class="fas fa-ban"></i> Centro de Bloqueio IMEI</h1>
+                <div>
+                    <a href="admin.html" class="logout-btn"><i class="fas fa-user-shield"></i> Admin</a>
+                    <a href="dashboard.html" class="logout-btn"><i class="fas fa-home"></i> Dashboard</a>
+                    <button class="logout-btn" id="btnLogout"><i class="fas fa-sign-out-alt"></i> Sair</button>
+                </div>
+            </div>
+            <p>Gerencie bloqueios de IMEI com controles avançados e auditoria.</p>
+            <div class="header-tabs">
+                <button class="main-tab-btn active" data-tab="gerenciar"><i class="fas fa-list-check"></i> Gerenciar</button>
+                <button class="main-tab-btn" data-tab="ferramentas"><i class="fas fa-toolbox"></i> Ferramentas</button>
+                <button class="main-tab-btn" data-tab="auditoria"><i class="fas fa-file-alt"></i> Auditoria</button>
+            </div>
+        </header>
+
+        <main>
+            <section class="card" id="blockManageSection">
+                <div class="card-header">
+                    <h2><i class="fas fa-shield-alt"></i> Bloqueios de IMEI</h2>
+                    <span class="status-badge info" id="blockCountBadge">0 itens</span>
+                </div>
+                
+                <div class="imei-form-group">
+                    <input type="text" id="inputImeiBlock" placeholder="IMEI (15 dígitos)" maxlength="15" class="imei-input" pattern="[0-9]{15}">
+                    <input type="text" id="inputOperator" placeholder="Operadora/País" class="imei-input">
+                    <input type="text" id="inputReason" placeholder="Motivo do bloqueio" class="imei-input">
+                    <input type="datetime-local" id="inputExpire" class="imei-input">
+                    <button id="btnAddBlock" class="action-btn info">
+                        <i class="fas fa-plus"></i> Adicionar Bloqueio
+                    </button>
+                </div>
+                
+                <div id="blockList" class="modules-grid"></div>
+            </section>
+
+            <section class="card" id="toolsSection" style="display: none;">
+                <div class="card-header">
+                    <h2><i class="fas fa-toolbox"></i> Ferramentas</h2>
+                    <span class="status-badge online" id="toolsStatus">Pronto</span>
+                </div>
+                
+                <div class="actions">
+                    <button id="btnExportBlocks" class="action-btn info">
+                        <i class="fas fa-file-export"></i> Exportar JSON
+                    </button>
+                    <button id="btnImportBlocks" class="action-btn warning">
+                        <i class="fas fa-file-import"></i> Importar JSON
+                    </button>
+                    <button id="btnCleanExpired" class="action-btn green">
+                        <i class="fas fa-broom"></i> Limpar Expirados
+                    </button>
+                    <button id="btnAuditDuplicates" class="action-btn danger">
+                        <i class="fas fa-clone"></i> Auditar Duplicados
+                    </button>
+                </div>
+            </section>
+
+            <section class="card" id="auditSection" style="display: none;">
+                <div class="card-header">
+                    <h2><i class="fas fa-file-alt"></i> Log de Ações</h2>
+                    <span class="status-badge info" id="auditCount">0 entradas</span>
+                </div>
+                
+                <div class="connection-log" id="imeiBlockLog">
+                    <p class="log-placeholder">Sem atividades registradas.</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="auth.js"></script>
+    <script src="main.js"></script>
+    <script>
+        // Sistema de bloqueio IMEI
+        class IMEIBlockManager {
+            constructor() {
+                this.KEY = 'imei_block_list';
+                this.LOG_KEY = 'imei_block_log';
+                this.init();
+            }
+            
+            init() {
+                if (!auth.requireAdmin()) return;
+                
+                this.setupNavigation();
+                this.renderBlocks();
+                this.renderLog();
+                this.setupEvents();
+                
+                console.log('IMEI Block Manager inicializado');
+            }
+            
+            setupNavigation() {
+                const tabs = document.querySelectorAll('.main-tab-btn');
+                const sections = ['blockManageSection', 'toolsSection', 'auditSection'];
+                
+                tabs.forEach(tab => {
+                    tab.addEventListener('click', () => {
+                        const tabId = tab.getAttribute('data-tab');
+                        
+                        // Ativar aba
+                        tabs.forEach(t => t.classList.remove('active'));
+                        tab.classList.add('active');
+                        
+                        // Mostrar seção correspondente
+                        sections.forEach(section => {
+                            const el = document.getElementById(section);
+                            if (el) el.style.display = 'none';
+                        });
+                        
+                        switch(tabId) {
+                            case 'gerenciar':
+                                document.getElementById('blockManageSection').style.display = 'block';
+                                break;
+                            case 'ferramentas':
+                                document.getElementById('toolsSection').style.display = 'block';
+                                break;
+                            case 'auditoria':
+                                document.getElementById('auditSection').style.display = 'block';
+                                break;
+                        }
+                    });
+                });
+            }
+            
+            loadBlocks() {
+                try {
+                    return JSON.parse(localStorage.getItem(this.KEY) || '[]');
+                } catch {
+                    return [];
+                }
+            }
+            
+            saveBlocks(blocks) {
+                localStorage.setItem(this.KEY, JSON.stringify(blocks));
+            }
+            
+            loadLog() {
+                try {
+                    return JSON.parse(localStorage.getItem(this.LOG_KEY) || '[]');
+                } catch {
+                    return [];
+                }
+            }
+            
+            addLog(message, type = 'info') {
+                const log = this.loadLog();
+                log.unshift({
+                    timestamp: new Date().toISOString(),
+                    message: message,
+                    type: type,
+                    user: auth.currentUser.username
+                });
+                
+                // Manter apenas os últimos 100 registros
+                if (log.length > 100) log.length = 100;
+                
+                localStorage.setItem(this.LOG_KEY, JSON.stringify(log));
+                this.renderLog();
+            }
+            
+            renderBlocks() {
+                const blocks = this.loadBlocks();
+                const container = document.getElementById('blockList');
+                const badge = document.getElementById('blockCountBadge');
+                
+                badge.textContent = `${blocks.length} itens`;
+                
+                if (blocks.length === 0) {
+                    container.innerHTML = `
+                        <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: #64748b;">
+                            <i class="fas fa-ban" style="font-size: 48px; margin-bottom: 20px; opacity: 0.5;"></i>
+                            <h3>Nenhum bloqueio cadastrado</h3>
+                            <p>Adicione seu primeiro bloqueio usando o formulário acima.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = '';
+                
+                blocks.forEach((block, index) => {
+                    const isExpired = block.expiresAt && new Date(block.expiresAt) < new Date();
+                    const status = isExpired ? 'Expirado' : 'Ativo';
+                    const statusClass = isExpired ? 'update-available' : 'up-to-date';
+                    
+                    const card = document.createElement('div');
+                    card.className = 'module-item';
+                    card.innerHTML = `
+                        <div class="module-info">
+                            <div class="module-icon">
+                                <i class="fas fa-mobile-alt"></i>
+                            </div>
+                            <div class="module-details">
+                                <h3>IMEI: ${block.imei}</h3>
+                                <p><strong>Operadora:</strong> ${block.operator || 'Não especificada'}</p>
+                                <p><strong>Motivo:</strong> ${block.reason || 'Não especificado'}</p>
+                                <p><strong>Criado em:</strong> ${new Date(block.createdAt).toLocaleString('pt-BR')}</p>
+                                ${block.expiresAt ? `<p><strong>Expira em:</strong> ${new Date(block.expiresAt).toLocaleString('pt-BR')}</p>` : ''}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="module-status ${statusClass}">
+                                <i class="fas fa-circle"></i> ${status}
+                            </div>
+                            <div style="display: flex; gap: 8px; margin-top: 10px;">
+                                <button class="action-btn danger" data-action="remove" data-index="${index}">
+                                    <i class="fas fa-trash"></i> Remover
+                                </button>
+                                <button class="action-btn info" data-action="copy" data-index="${index}">
+                                    <i class="fas fa-copy"></i> Copiar
+                                </button>
+                                <button class="action-btn warning" data-action="details" data-index="${index}">
+                                    <i class="fas fa-info-circle"></i> Detalhes
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    container.appendChild(card);
+                });
+                
+                // Adicionar eventos
+                container.querySelectorAll('[data-action]').forEach(button => {
+                    button.addEventListener('click', (e) => {
+                        const action = e.target.closest('button').getAttribute('data-action');
+                        const index = parseInt(e.target.closest('button').getAttribute('data-index'));
+                        
+                        switch(action) {
+                            case 'remove':
+                                this.removeBlock(index);
+                                break;
+                            case 'copy':
+                                this.copyIMEI(index);
+                                break;
+                            case 'details':
+                                this.showDetails(index);
+                                break;
+                        }
+                    });
+                });
+            }
+            
+            renderLog() {
+                const log = this.loadLog();
+                const container = document.getElementById('imeiBlockLog');
+                const count = document.getElementById('auditCount');
+                
+                count.textContent = `${log.length} entradas`;
+                
+                if (log.length === 0) {
+                    container.innerHTML = '<p class="log-placeholder">Sem atividades registradas.</p>';
+                    return;
+                }
+                
+                container.innerHTML = '';
+                
+                log.forEach(entry => {
+                    const div = document.createElement('div');
+                    div.className = `log-entry ${entry.type}`;
+                    div.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                            <strong>${entry.user || 'Sistema'}</strong>
+                            <small>${new Date(entry.timestamp).toLocaleString('pt-BR')}</small>
+                        </div>
+                        <div>${entry.message}</div>
+                    `;
+                    container.appendChild(div);
+                });
+            }
+            
+            setupEvents() {
+                // Adicionar bloqueio
+                document.getElementById('btnAddBlock').addEventListener('click', () => {
+                    this.addBlock();
+                });
+                
+                // Exportar
+                document.getElementById('btnExportBlocks').addEventListener('click', () => {
+                    this.exportBlocks();
+                });
+                
+                // Importar
+                document.getElementById('btnImportBlocks').addEventListener('click', () => {
+                    this.importBlocks();
+                });
+                
+                // Limpar expirados
+                document.getElementById('btnCleanExpired').addEventListener('click', () => {
+                    this.cleanExpired();
+                });
+                
+                // Auditar duplicados
+                document.getElementById('btnAuditDuplicates').addEventListener('click', () => {
+                    this.auditDuplicates();
+                });
+                
+                // Permitir Enter no campo IMEI
+                document.getElementById('inputImeiBlock').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        this.addBlock();
+                    }
+                });
+            }
+            
+            formatIMEI(imei) {
+                return imei.replace(/\D/g, '').slice(0, 15);
+            }
+            
+            isValidIMEI(imei) {
+                const cleaned = this.formatIMEI(imei);
+                return cleaned.length === 15 && /^\d+$/.test(cleaned);
+            }
+            
+            addBlock() {
+                const imeiInput = document.getElementById('inputImeiBlock');
+                const operatorInput = document.getElementById('inputOperator');
+                const reasonInput = document.getElementById('inputReason');
+                const expireInput = document.getElementById('inputExpire');
+                
+                const imei = this.formatIMEI(imeiInput.value);
+                
+                if (!this.isValidIMEI(imei)) {
+                    showNotification('IMEI inválido! Deve conter 15 dígitos.', 'danger');
+                    imeiInput.focus();
+                    return;
+                }
+                
+                const blocks = this.loadBlocks();
+                
+                // Verificar duplicado
+                if (blocks.some(block => block.imei === imei)) {
+                    showNotification('IMEI já está bloqueado!', 'warning');
+                    return;
+                }
+                
+                const newBlock = {
+                    imei: imei,
+                    operator: operatorInput.value.trim() || 'Desconhecida',
+                    reason: reasonInput.value.trim() || 'Bloqueio administrativo',
+                    createdAt: new Date().toISOString(),
+                    expiresAt: expireInput.value ? new Date(expireInput.value).toISOString() : null,
+                    addedBy: auth.currentUser.username
+                };
+                
+                blocks.unshift(newBlock);
+                this.saveBlocks(blocks);
+                
+                // Limpar formulário
+                imeiInput.value = '';
+                operatorInput.value = '';
+                reasonInput.value = '';
+                expireInput.value = '';
+                
+                // Atualizar UI
+                this.renderBlocks();
+                this.addLog(`Bloqueio adicionado para IMEI: ${imei}`, 'success');
+                showNotification('Bloqueio adicionado com sucesso!', 'success');
+            }
+            
+            removeBlock(index) {
+                if (!confirm('Tem certeza que deseja remover este bloqueio?')) return;
+                
+                const blocks = this.loadBlocks();
+                const removed = blocks.splice(index, 1)[0];
+                this.saveBlocks(blocks);
+                
+                this.renderBlocks();
+                this.addLog(`Bloqueio removido para IMEI: ${removed.imei}`, 'warning');
+                showNotification('Bloqueio removido!', 'success');
+            }
+            
+            copyIMEI(index) {
+                const blocks = this.loadBlocks();
+                const imei = blocks[index].imei;
+                
+                navigator.clipboard.writeText(imei).then(() => {
+                    showNotification('IMEI copiado para a área de transferência!', 'info');
+                });
+            }
+            
+            showDetails(index) {
+                const blocks = this.loadBlocks();
+                const block = blocks[index];
+                
+                alert(
+                    `Detalhes do Bloqueio:\n\n` +
+                    `IMEI: ${block.imei}\n` +
+                    `Operadora: ${block.operator}\n` +
+                    `Motivo: ${block.reason}\n` +
+                    `Adicionado por: ${block.addedBy}\n` +
+                    `Data de criação: ${new Date(block.createdAt).toLocaleString('pt-BR')}\n` +
+                    `Expira em: ${block.expiresAt ? new Date(block.expiresAt).toLocaleString('pt-BR') : 'Não expira'}`
+                );
+            }
+            
+            exportBlocks() {
+                const blocks = this.loadBlocks();
+                const dataStr = JSON.stringify(blocks, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                
+                const exportFileDefaultName = `imei-blocks-${new Date().toISOString().split('T')[0]}.json`;
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+                
+                this.addLog('Lista de bloqueios exportada', 'info');
+                showNotification('Lista exportada com sucesso!', 'success');
+            }
+            
+            importBlocks() {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json';
+                
+                input.onchange = (e) => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                        try {
+                            const imported = JSON.parse(event.target.result);
+                            if (!Array.isArray(imported)) {
+                                throw new Error('Formato inválido');
+                            }
+                            
+                            const current = this.loadBlocks();
+                            let added = 0;
+                            let skipped = 0;
+                            
+                            imported.forEach(block => {
+                                if (block.imei && this.isValidIMEI(block.imei)) {
+                                    const imei = this.formatIMEI(block.imei);
+                                    if (!current.some(b => b.imei === imei)) {
+                                        current.push({
+                                            imei: imei,
+                                            operator: block.operator || 'Desconhecida',
+                                            reason: block.reason || 'Importado',
+                                            createdAt: block.createdAt || new Date().toISOString(),
+                                            expiresAt: block.expiresAt || null,
+                                            addedBy: auth.currentUser.username
+                                        });
+                                        added++;
+                                    } else {
+                                        skipped++;
+                                    }
+                                }
+                            });
+                            
+                            this.saveBlocks(current);
+                            this.renderBlocks();
+                            this.addLog(`Importados ${added} bloqueios, ${skipped} ignorados`, 'success');
+                            showNotification(`Importação concluída! ${added} novos, ${skipped} duplicados`, 'success');
+                            
+                        } catch (error) {
+                            showNotification('Erro ao importar arquivo!', 'danger');
+                        }
+                    };
+                    
+                    reader.readAsText(file);
+                };
+                
+                input.click();
+            }
+            
+            cleanExpired() {
+                const blocks = this.loadBlocks();
+                const now = new Date();
+                const initialCount = blocks.length;
+                
+                const active = blocks.filter(block => {
+                    if (!block.expiresAt) return true;
+                    return new Date(block.expiresAt) > now;
+                });
+                
+                const removed = initialCount - active.length;
+                
+                if (removed > 0) {
+                    this.saveBlocks(active);
+                    this.renderBlocks();
+                    this.addLog(`${removed} bloqueios expirados removidos`, 'warning');
+                    showNotification(`${removed} bloqueios expirados removidos!`, 'success');
+                } else {
+                    showNotification('Nenhum bloqueio expirado encontrado.', 'info');
+                }
+            }
+            
+            auditDuplicates() {
+                const blocks = this.loadBlocks();
+                const seen = new Set();
+                const duplicates = [];
+                
+                blocks.forEach(block => {
+                    if (seen.has(block.imei)) {
+                        duplicates.push(block.imei);
+                    } else {
+                        seen.add(block.imei);
+                    }
+                });
+                
+                if (duplicates.length > 0) {
+                    const uniqueDups = [...new Set(duplicates)];
+                    this.addLog(`Encontrados ${uniqueDups.length} IMEIs duplicados: ${uniqueDups.join(', ')}`, 'error');
+                    showNotification(`Encontrados ${uniqueDups.length} IMEIs duplicados!`, 'warning');
+                } else {
+                    showNotification('Nenhum IMEI duplicado encontrado.', 'success');
+                }
+            }
+        }
+        
+        // Inicializar quando a página carregar
+        document.addEventListener('DOMContentLoaded', () => {
+            window.imeiManager = new IMEIBlockManager();
+        });
+    </script>
+</body>
+</html>
