@@ -5,7 +5,7 @@ class SyncAdminSystem {
     constructor() {
         this.syncInterval = 30000; // 30 segundos
         this.lastSync = null;
-        this.isAdmin = window.location.pathname.includes('admin.html');
+        this.isAdmin = window.location.pathname.includes('/admin/');
         this.init();
     }
 

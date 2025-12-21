@@ -97,7 +97,7 @@ class DashboardSyncEvents {
 
     monitorPurchaseActions() {
         // Monitorar compras
-        const cartButtons = document.querySelectorAll('[data-cart-add], [data-buy-now]');
+        const cartButtons = document.querySelectorAll('[data-cart-add], [data-buy-now], [data-product-id]');
         cartButtons.forEach(button => {
             button.addEventListener('click', () => {
                 setTimeout(() => {
