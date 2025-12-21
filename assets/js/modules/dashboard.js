@@ -210,6 +210,11 @@ class DashboardManager {
     }
     
     setupEvents() {
+        // Admin Quick Access
+        document.getElementById('btnAdminQuick')?.addEventListener('click', () => {
+            window.location.href = 'admin/index.html';
+        });
+
         // Logout
         document.getElementById('btnLogout')?.addEventListener('click', () => {
             auth.logout();
