@@ -8,7 +8,7 @@ class DashboardManager {
     
     init() {
         if (!auth.isAuthenticated()) {
-            window.location.href = '../../public/index.html';
+            window.location.href = 'index.html';
             return;
         }
         
@@ -65,6 +65,10 @@ class DashboardManager {
         // Adicionar link admin se for admin
         if (auth.isAdmin()) {
             const sidebarNav = document.querySelector('.sidebar-nav');
+            const btnAdminQuick = document.getElementById('btnAdminQuick');
+            if (btnAdminQuick) {
+                btnAdminQuick.style.display = 'inline-flex';
+            }
             if (sidebarNav && !document.querySelector('.nav-item[href="admin/index.html"]')) {
                 const adminLink = document.createElement('a');
                 adminLink.href = 'admin/index.html';
@@ -124,16 +128,15 @@ class DashboardManager {
     }
     
     initCharts() {
-        // Gráfico de recursos
-        const resourceCtx = document.getElementById('resourceChart');
-        if (resourceCtx) {
-            this.charts.resource = new Chart(resourceCtx.getContext('2d'), {
+        const usageCtx = document.getElementById('usageChart');
+        if (usageCtx) {
+            this.charts.usage = new Chart(usageCtx.getContext('2d'), {
                 type: 'line',
                 data: {
                     labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
                     datasets: [
                         {
-                            label: 'CPU %',
+                            label: 'Uso %',
                             data: [65, 59, 80, 81, 56, 55, 40],
                             borderColor: '#4f46e5',
                             backgroundColor: 'rgba(79, 70, 229, 0.1)',
@@ -172,10 +175,9 @@ class DashboardManager {
             });
         }
         
-        // Gráfico de desbloqueios
-        const unlockCtx = document.getElementById('unlockChart');
-        if (unlockCtx) {
-            this.charts.unlock = new Chart(unlockCtx.getContext('2d'), {
+        const servicesCtx = document.getElementById('servicesChart');
+        if (servicesCtx) {
+            this.charts.services = new Chart(servicesCtx.getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: ['Samsung', 'Xiaomi', 'LG', 'Motorola', 'Outros'],
@@ -281,23 +283,21 @@ class DashboardManager {
         // Gerar valores aleatórios para demonstração
         const serversOnline = Math.floor(Math.random() * 4) + 12;
         const apiResponse = Math.floor(Math.random() * 20) + 15;
-        const devicesToday = Math.floor(Math.random() * 5) + 8;
         
         updateValue('serversOnline', `${serversOnline}/15`);
         updateValue('apiResponse', `${apiResponse}ms`);
-        updateValue('devicesToday', devicesToday);
         
         // Atualizar temporizador
         const now = new Date();
         const timeStr = now.toLocaleTimeString('pt-BR');
-        updateValue('sessionTimer', timeStr);
+        updateValue('sessionTime', timeStr);
     }
     
     updateCharts() {
-        if (this.charts.resource) {
+        if (this.charts.usage) {
             const newData = Array.from({length: 7}, () => Math.floor(Math.random() * 100));
-            this.charts.resource.data.datasets[0].data = newData;
-            this.charts.resource.update('none');
+            this.charts.usage.data.datasets[0].data = newData;
+            this.charts.usage.update('none');
         }
     }
     
