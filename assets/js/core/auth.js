@@ -122,7 +122,7 @@ const auth = {
     logout: function() {
         localStorage.removeItem('authenticated');
         localStorage.removeItem('currentUser');
-        window.location.href = 'index.html';
+        window.location.href = '../../public/index.html';
     },
 
     // Registrar novo usuário
@@ -177,7 +177,7 @@ const auth = {
     // Requer autenticação
     requireAuth: function() {
         if (!this.isAuthenticated()) {
-            window.location.href = 'index.html';
+            window.location.href = '../../public/index.html';
             return false;
         }
         return true;
@@ -186,7 +186,7 @@ const auth = {
     // Requer privilégios de admin
     requireAdmin: function() {
         if (!this.isAuthenticated()) {
-            window.location.href = 'index.html';
+            window.location.href = '../../public/index.html';
             return false;
         }
         
@@ -196,7 +196,7 @@ const auth = {
             : ['admin', 'superadmin'];
             
         if (!adminRoles.includes(user.role)) {
-            window.location.href = 'dashboard.html';
+            window.location.href = '../../public/dashboard.html';
             return false;
         }
         

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IMEI Block - JPCELLFRP PRO</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         .imei-form-group {
@@ -230,9 +230,9 @@
         </main>
     </div>
 
-    <script src="config.js"></script>
-    <script src="auth.js"></script>
-    <script src="main.js"></script>
+    <script src="../config/config.js"></script>
+    <script src="../assets/js/core/auth.js"></script>
+    <script src="../assets/js/core/main.js"></script>
     <script>
         // Sistema de bloqueio IMEI
         class IMEIBlockManager {
@@ -246,7 +246,7 @@
                 // Verificar se auth está definido
                 if (typeof auth === 'undefined' || !auth) {
                     console.error('Sistema de autenticação não carregado');
-                    window.location.href = 'index.html';
+                    window.location.href = '../public/index.html';
                     return;
                 }
                 

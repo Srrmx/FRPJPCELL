@@ -8,7 +8,7 @@ class DashboardManager {
     
     init() {
         if (!auth.isAuthenticated()) {
-            window.location.href = 'index.html';
+            window.location.href = '../../public/index.html';
             return;
         }
         

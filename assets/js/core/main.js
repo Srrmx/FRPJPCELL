@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Verificar autenticação para páginas protegidas
     if (protectedPages.includes(currentPage)) {
         if (!auth.isAuthenticated()) {
-            window.location.href = 'index.html';
+            window.location.href = '../../public/index.html';
             return;
         }
     }

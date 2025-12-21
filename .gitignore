@@ -1,0 +1,38 @@
+# Dados sensíveis
+data/users/*
+!data/users/.gitkeep
+data/logs/*
+!data/logs/.gitkeep
+data/backup/*
+!data/backup/.gitkeep
+data/temp/*
+!data/temp/.gitkeep
+
+# Configurações locais
+config/local.js
+.env
+.env.local
+
+# Node modules (se usar npm)
+node_modules/
+package-lock.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Temporários
+*.tmp
+*.temp
