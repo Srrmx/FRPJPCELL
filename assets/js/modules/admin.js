@@ -257,6 +257,7 @@ class AdminManager {
         localStorage.setItem('users_db', JSON.stringify(users));
         this.loadUsers();
         this.updateStats();
+        window.syncAdmin?.forceUserSync();
     }
     
     loadModules() {
@@ -567,7 +568,7 @@ class AdminManager {
             users: JSON.parse(localStorage.getItem('users_db') || '[]'),
             products: JSON.parse(localStorage.getItem('site_products') || '[]'),
             settings: JSON.parse(localStorage.getItem('ui_settings') || '{}'),
-            imeiBlocks: JSON.parse(localStorage.getItem('imei_block_list') || '[]'),
+            imeiBlocks: JSON.parse(localStorage.getItem('imei_blocks') || '[]'),
             supportMessages: JSON.parse(localStorage.getItem('support_messages') || '[]'),
             shoppingCart: JSON.parse(localStorage.getItem('shopping_cart') || '[]')
         };
@@ -712,6 +713,7 @@ class AdminManager {
         showNotification('Usuário criado com sucesso!', 'success');
         this.closeModal();
         this.loadUsers();
+        window.syncAdmin?.forceUserSync();
     }
     
     showBroadcastModal() {

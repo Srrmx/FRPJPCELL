@@ -67,6 +67,7 @@ function normalizeLinks(basePath) {
         const href = a.getAttribute('href');
         if (!href || href.startsWith('http')) return;
         if (href.startsWith('#')) return;
+        if (href.includes('..')) return;
         const resolved = window.App.resolveUrl(href.replace(/^\.\//, ''));
         a.setAttribute('href', resolved);
     });

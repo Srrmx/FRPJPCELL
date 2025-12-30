@@ -527,6 +527,7 @@
                 this.renderBlocks();
                 this.addLog(`Bloqueio adicionado para IMEI: ${imei}`, 'success');
                 showNotification('Bloqueio adicionado com sucesso!', 'success');
+                window.syncAdmin?.forceIMEISync();
             }
             
             removeBlock(index) {
@@ -539,6 +540,7 @@
                 this.renderBlocks();
                 this.addLog(`Bloqueio removido para IMEI: ${removed.imei}`, 'warning');
                 showNotification('Bloqueio removido!', 'success');
+                window.syncAdmin?.forceIMEISync();
             }
             
             copyIMEI(index) {
@@ -625,6 +627,7 @@
                             this.renderBlocks();
                             this.addLog(`Importados ${added} bloqueios, ${skipped} ignorados`, 'success');
                             showNotification(`Importação concluída! ${added} novos, ${skipped} duplicados`, 'success');
+                            window.syncAdmin?.forceIMEISync();
                             
                         } catch (error) {
                             showNotification('Erro ao importar arquivo!', 'danger');
@@ -654,6 +657,7 @@
                     this.renderBlocks();
                     this.addLog(`${removed} bloqueios expirados removidos`, 'warning');
                     showNotification(`${removed} bloqueios expirados removidos!`, 'success');
+                    window.syncAdmin?.forceIMEISync();
                 } else {
                     showNotification('Nenhum bloqueio expirado encontrado.', 'info');
                 }

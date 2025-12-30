@@ -42,6 +42,11 @@ class DashboardSyncEvents {
             this.handleSettingsUpdated(e.detail);
         });
 
+        // IMEI atualizado
+        window.addEventListener('imeiUpdated', (e) => {
+            this.handleIMEIUpdated(e.detail);
+        });
+
         // Sincronização concluída
         window.addEventListener('syncCompleted', (e) => {
             this.handleSyncCompleted(e.detail);
@@ -160,6 +165,15 @@ class DashboardSyncEvents {
         
         // Aplicar configurações no dashboard
         this.applyDashboardSettings(data.data);
+    }
+
+    handleIMEIUpdated(data) {
+        console.log('IMEI blocks atualizados via sincronização:', data);
+        if (data && typeof data.count === 'number') {
+            this.showSyncNotification(`Bloqueios IMEI: ${data.count} itens`);
+        } else {
+            this.showSyncNotification('Lista de bloqueios IMEI atualizada!');
+        }
     }
 
     handleSyncCompleted(data) {

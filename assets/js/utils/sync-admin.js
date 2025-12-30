@@ -48,6 +48,9 @@ class SyncAdminSystem {
             // Sincronizar produtos
             this.syncProducts();
             
+            // Sincronizar IMEI blocks
+            this.syncIMEI();
+            
             // Sincronizar vendas
             this.syncSales();
             
@@ -119,6 +122,16 @@ class SyncAdminSystem {
         };
         
         localStorage.setItem('product_stats', JSON.stringify(productStats));
+    }
+
+    syncIMEI() {
+        const blocks = JSON.parse(localStorage.getItem('imei_blocks') || '[]');
+        const syncKey = 'imei_sync';
+        localStorage.setItem(syncKey, JSON.stringify({
+            count: blocks.length,
+            lastUpdate: Date.now(),
+            source: this.isAdmin ? 'admin' : 'dashboard'
+        }));
     }
 
     syncSales() {
@@ -200,6 +213,10 @@ class SyncAdminSystem {
                 case 'products_sync':
                     this.handleProductsUpdate(data);
                     break;
+                
+                case 'imei_sync':
+                    this.handleIMEIUpdate(data);
+                    break;
                     
                 case 'sales_sync':
                     this.handleSalesUpdate(data);
@@ -228,6 +245,11 @@ class SyncAdminSystem {
         
         // Disparar evento de atualização de usuários
         const event = new CustomEvent('usersUpdated', { detail: data });
+        window.dispatchEvent(event);
+    }
+
+    handleIMEIUpdate(data) {
+        const event = new CustomEvent('imeiUpdated', { detail: data });
         window.dispatchEvent(event);
     }
 
@@ -311,6 +333,11 @@ class SyncAdminSystem {
         this.syncProducts();
     }
 
+    forceIMEISync() {
+        localStorage.setItem('force_imei_sync', Date.now().toString());
+        this.syncIMEI();
+    }
+
     forceSalesSync() {
         localStorage.setItem('force_sales_sync', Date.now().toString());
         this.syncSales();
@@ -328,6 +355,7 @@ class SyncAdminSystem {
             isAdmin: this.isAdmin,
             users: JSON.parse(localStorage.getItem('users_sync') || 'null'),
             products: JSON.parse(localStorage.getItem('products_sync') || 'null'),
+            imei: JSON.parse(localStorage.getItem('imei_sync') || 'null'),
             sales: JSON.parse(localStorage.getItem('sales_sync') || 'null'),
             support: JSON.parse(localStorage.getItem('support_sync') || 'null')
         };
